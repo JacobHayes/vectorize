@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vectorize - PNG to SVG</title>
+    <style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+    line-height: 1.6;
+    color: #333;
+    background-color: #f5f5f5;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 2rem;
+    text-align: center;
+}
+
+header h1 {
+    margin-bottom: 0.5rem;
+    font-size: 2.5rem;
+}
+
+header p {
+    opacity: 0.9;
+}
+
+main {
+    flex: 1;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem;
+    width: 100%;
+}
+
+footer {
+    background: #333;
+    color: #aaa;
+    text-align: center;
+    padding: 1rem;
+}
+
+.upload-section {
+    background: white;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: #555;
+}
+
+.form-group input[type="file"] {
+    width: 100%;
+    padding: 1rem;
+    border: 2px dashed #ccc;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: border-color 0.3s;
+}
+
+.form-group input[type="file"]:hover {
+    border-color: #667eea;
+}
+
+.form-group select,
+.form-group input[type="number"] {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 1rem;
+}
+
+.form-group small {
+    display: block;
+    margin-top: 0.25rem;
+    color: #888;
+    font-size: 0.85rem;
+}
+
+.advanced-options {
+    margin: 1.5rem 0;
+    padding: 1rem;
+    background: #f9f9f9;
+    border-radius: 8px;
+}
+
+.advanced-options summary {
+    cursor: pointer;
+    font-weight: 600;
+    color: #555;
+    padding: 0.5rem;
+}
+
+.advanced-options[open] summary {
+    margin-bottom: 1rem;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 1rem;
+}
+
+.btn-primary {
+    width: 100%;
+    padding: 1rem 2rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+}
+
+.btn-primary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.loading {
+    display: none;
+    text-align: center;
+    padding: 2rem;
+}
+
+.loading.active {
+    display: block;
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #667eea;
+    border-radius: 50%;
+    margin: 0 auto 1rem;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.result-section {
+    margin-top: 2rem;
+    display: none;
+}
+
+.result-section.active {
+    display: block;
+}
+
+.result-container {
+    background: white;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.result-container h2 {
+    margin-bottom: 1rem;
+    color: #333;
+}
+
+.stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: #f9f9f9;
+    border-radius: 8px;
+}
+
+.stat {
+    padding: 0.5rem 1rem;
+    background: white;
+    border-radius: 6px;
+    font-size: 0.9rem;
+}
+
+.preview h3 {
+    margin-bottom: 1rem;
+    color: #555;
+}
+
+.svg-container {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 1rem;
+    background: white;
+    overflow: hidden;
+    max-height: 500px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.svg-container svg {
+    max-width: 100%;
+    max-height: 468px;
+    width: auto;
+    height: auto;
+    display: block;
+}
+
+.download-section {
+    margin-top: 1.5rem;
+    text-align: center;
+}
+
+.btn-download {
+    padding: 0.75rem 2rem;
+    background: #28a745;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-download:hover {
+    background: #218838;
+}
+
+.error-message {
+    background: #f8d7da;
+    color: #721c24;
+    padding: 1rem;
+    border-radius: 8px;
+    border: 1px solid #f5c6cb;
+    margin: 1rem 0;
+}
+
+.wasm-loading {
+    text-align: center;
+    padding: 2rem;
+    color: #666;
+}
+
+@media (max-width: 600px) {
+    header h1 {
+        font-size: 1.8rem;
+    }
+
+    main {
+        padding: 1rem;
+    }
+
+    .upload-section,
+    .result-container {
+        padding: 1.5rem;
+    }
+
+    .stats {
+        flex-direction: column;
+    }
+}
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Vectorize</h1>
+        <p>Convert PNG images to SVG (runs locally in your browser)</p>
+    </header>
+    <main>
+        <div id="wasm-loading" class="wasm-loading">
+            <div class="spinner"></div>
+            <p>Loading vectorizer...</p>
+        </div>
+
+        <section id="upload-section" class="upload-section" style="display: none;">
+            <form id="upload-form">
+                <div class="form-group">
+                    <label for="image">Select PNG Image</label>
+                    <input type="file" id="image" name="image" accept="image/*" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="preset">Preset</label>
+                    <select id="preset" name="preset">
+                        <option value="default">Default</option>
+                        <option value="bw">Black & White</option>
+                        <option value="poster">Poster</option>
+                        <option value="photo">Photo</option>
+                    </select>
+                </div>
+
+                <details class="advanced-options">
+                    <summary>Advanced Options</summary>
+
+                    <div class="form-group">
+                        <label for="color_mode">Color Mode</label>
+                        <select id="color_mode" name="color_mode">
+                            <option value="color">Color</option>
+                            <option value="binary">Binary (Black & White)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="filter_speckle">Filter Speckle (1-100)</label>
+                        <input type="number" id="filter_speckle" name="filter_speckle" value="4" min="1" max="100">
+                        <small>Remove speckles smaller than this size</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="color_precision">Color Precision (1-10)</label>
+                        <input type="number" id="color_precision" name="color_precision" value="6" min="1" max="10">
+                        <small>Number of significant bits for color quantization</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="corner_threshold">Corner Threshold (0-180)</label>
+                        <input type="number" id="corner_threshold" name="corner_threshold" value="60" min="0" max="180">
+                        <small>Angle threshold for corner detection</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="segment_length">Segment Length (0.5-10)</label>
+                        <input type="number" id="segment_length" name="segment_length" value="4.0" min="0.5" max="10" step="0.5">
+                        <small>Minimum segment length</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="splice_threshold">Splice Threshold (0-180)</label>
+                        <input type="number" id="splice_threshold" name="splice_threshold" value="45" min="0" max="180">
+                        <small>Angle threshold for path splicing</small>
+                    </div>
+                </details>
+
+                <button type="submit" id="convert-btn" class="btn-primary">Convert to SVG</button>
+            </form>
+
+            <div id="loading" class="loading">
+                <div class="spinner"></div>
+                <p>Converting image...</p>
+            </div>
+        </section>
+
+        <section id="result" class="result-section">
+            <div class="result-container">
+                <h2>Conversion Result</h2>
+
+                <div class="stats">
+                    <span class="stat">
+                        <strong>Dimensions:</strong> <span id="dimensions"></span>
+                    </span>
+                    <span class="stat">
+                        <strong>Processing time:</strong> <span id="processing-time"></span>
+                    </span>
+                    <span class="stat">
+                        <strong>SVG size:</strong> <span id="svg-size"></span>
+                    </span>
+                </div>
+
+                <div class="preview">
+                    <h3>Preview</h3>
+                    <div id="svg-container" class="svg-container"></div>
+                </div>
+
+                <div class="download-section">
+                    <button id="download-btn" class="btn-download">Download SVG</button>
+                </div>
+            </div>
+        </section>
+    </main>
+    <footer>
+        <p>Powered by vtracer (running locally via WebAssembly)</p>
+    </footer>
+
+    <script type="module">
+        import init, { convert_png_to_svg } from './pkg/vectorize_wasm.js';
+
+        let currentSvg = null;
+        let currentFilename = 'converted.svg';
+
+        async function run() {
+            await init();
+
+            document.getElementById('wasm-loading').style.display = 'none';
+            document.getElementById('upload-section').style.display = 'block';
+
+            const form = document.getElementById('upload-form');
+            const fileInput = document.getElementById('image');
+            const loading = document.getElementById('loading');
+            const result = document.getElementById('result');
+            const convertBtn = document.getElementById('convert-btn');
+
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                const file = fileInput.files[0];
+                if (!file) return;
+
+                currentFilename = file.name.replace(/\.[^.]+$/, '') + '.svg';
+
+                loading.classList.add('active');
+                convertBtn.disabled = true;
+                result.classList.remove('active');
+
+                try {
+                    const arrayBuffer = await file.arrayBuffer();
+                    const bytes = new Uint8Array(arrayBuffer);
+
+                    const options = {
+                        preset: document.getElementById('preset').value,
+                        color_mode: document.getElementById('color_mode').value,
+                        filter_speckle: parseInt(document.getElementById('filter_speckle').value),
+                        color_precision: parseInt(document.getElementById('color_precision').value),
+                        corner_threshold: parseInt(document.getElementById('corner_threshold').value),
+                        segment_length: parseFloat(document.getElementById('segment_length').value),
+                        splice_threshold: parseInt(document.getElementById('splice_threshold').value),
+                    };
+
+                    const startTime = performance.now();
+                    const conversionResult = convert_png_to_svg(bytes, options);
+                    const endTime = performance.now();
+
+                    currentSvg = conversionResult.svg;
+
+                    document.getElementById('dimensions').textContent =
+                        `${conversionResult.width} × ${conversionResult.height}`;
+                    document.getElementById('processing-time').textContent =
+                        `${Math.round(endTime - startTime)}ms`;
+                    document.getElementById('svg-size').textContent =
+                        `${(currentSvg.length / 1024).toFixed(1)} KB`;
+
+                    const svgContainer = document.getElementById('svg-container');
+                    svgContainer.innerHTML = currentSvg;
+                    // Add viewBox and remove explicit dimensions so CSS can scale the SVG
+                    const svgEl = svgContainer.querySelector('svg');
+                    if (svgEl) {
+                        const w = svgEl.getAttribute('width');
+                        const h = svgEl.getAttribute('height');
+                        if (w && h && !svgEl.getAttribute('viewBox')) {
+                            svgEl.setAttribute('viewBox', `0 0 ${w} ${h}`);
+                        }
+                        svgEl.removeAttribute('width');
+                        svgEl.removeAttribute('height');
+                    }
+
+                    result.classList.add('active');
+                } catch (err) {
+                    alert('Error: ' + err);
+                } finally {
+                    loading.classList.remove('active');
+                    convertBtn.disabled = false;
+                }
+            });
+
+            document.getElementById('download-btn').addEventListener('click', () => {
+                if (!currentSvg) return;
+
+                const blob = new Blob([currentSvg], { type: 'image/svg+xml' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = currentFilename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            });
+
+            // Drag and drop support
+            document.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'copy';
+            });
+
+            document.addEventListener('drop', (e) => {
+                e.preventDefault();
+                const files = e.dataTransfer.files;
+                if (files.length > 0 && files[0].type.startsWith('image/')) {
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(files[0]);
+                    fileInput.files = dataTransfer.files;
+                    fileInput.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+            });
+        }
+
+        run();
+    </script>
+</body>
+</html>
