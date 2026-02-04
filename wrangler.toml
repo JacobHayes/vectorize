@@ -1,0 +1,26 @@
+name = "vectorize"
+
+compatibility_date = "2026-01-01"
+preview_urls = true
+workers_dev = false
+
+[build]
+command = """
+(command -v cargo || curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y) \
+  && . "$HOME/.cargo/env" \
+  && (command -v wasm-pack || cargo install wasm-pack) \
+  && wasm-pack build --target web \
+  && mkdir -p website \
+  && cp index.html website/ \
+  && cp -r pkg website/
+"""
+
+[assets]
+directory = "./website"
+
+[observability]
+enabled = true
+
+[[routes]]
+pattern = "vectorize.jacobhayes.dev"
+custom_domain = true
