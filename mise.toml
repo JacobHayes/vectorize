@@ -1,0 +1,24 @@
+[hooks]
+enter = "mise install"
+
+[settings]
+lockfile = true
+
+[tools]
+"cargo:wasm-pack" = "latest"
+"npm:wrangler" = "latest"
+python = "latest"
+rust = "latest"
+
+[tasks.build]
+description = "Build the WASM package"
+run = "wasm-pack build --target web"
+
+[tasks.serve]
+description = "Build and start development server"
+depends = ["build"]
+run = "python3 -m http.server 8080 --bind 127.0.0.1"
+
+[[watch_files]]
+patterns = ["rust-toolchain.toml"]
+run = "mise install"

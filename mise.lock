@@ -1,0 +1,15 @@
+[[tools."cargo:wasm-pack"]]
+version = "0.14.0"
+backend = "cargo:wasm-pack"
+
+[[tools."npm:wrangler"]]
+version = "4.62.0"
+backend = "npm:wrangler"
+
+[[tools.python]]
+version = "3.14.2"
+backend = "core:python"
+
+[[tools.rust]]
+version = "1.92.0"
+backend = "core:rust"
