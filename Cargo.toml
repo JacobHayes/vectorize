@@ -16,5 +16,5 @@ image = { version = "0.25", default-features = false, features = [
 ] }
 serde = { version = "1", features = ["derive"] }
 serde-wasm-bindgen = "0.6"
-vtracer = "0.6"
+vtracer = { git = "https://github.com/JacobHayes/vtracer.git", branch = "upgrade-clap-v4" }
 wasm-bindgen = "0.2"
