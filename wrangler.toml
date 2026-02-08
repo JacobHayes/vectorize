@@ -22,5 +22,9 @@ directory = "./website"
 enabled = true
 
 [[routes]]
+pattern = "svg.jacobhayes.dev"
+custom_domain = true
+
+[[routes]]
 pattern = "vectorize.jacobhayes.dev"
 custom_domain = true
