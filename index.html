@@ -5,6 +5,46 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vectorize - Image to SVG</title>
     <style>
+:root {
+    --color-text: #333;
+    --color-text-muted: #555;
+    --color-text-faint: #888;
+    --color-bg: #f5f5f5;
+    --color-surface: #fff;
+    --color-surface-alt: #f9f9f9;
+    --color-border: #ddd;
+    --color-border-dashed: #ccc;
+    --color-footer-bg: #333;
+    --color-footer-text: #aaa;
+    --color-error-bg: #f8d7da;
+    --color-error-text: #721c24;
+    --color-error-border: #f5c6cb;
+    --color-spinner-track: #f3f3f3;
+    --color-shadow: rgba(0, 0, 0, 0.1);
+    --color-wasm-loading: #666;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --color-text: #e0e0e0;
+        --color-text-muted: #b0b0b0;
+        --color-text-faint: #888;
+        --color-bg: #1a1a2e;
+        --color-surface: #252540;
+        --color-surface-alt: #2a2a45;
+        --color-border: #3a3a55;
+        --color-border-dashed: #4a4a65;
+        --color-footer-bg: #12121f;
+        --color-footer-text: #888;
+        --color-error-bg: #3d1c24;
+        --color-error-text: #f8a4b0;
+        --color-error-border: #5a2a35;
+        --color-spinner-track: #3a3a55;
+        --color-shadow: rgba(0, 0, 0, 0.3);
+        --color-wasm-loading: #aaa;
+    }
+}
+
 * {
     box-sizing: border-box;
     margin: 0;
@@ -14,8 +54,8 @@
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
     line-height: 1.6;
-    color: #333;
-    background-color: #f5f5f5;
+    color: var(--color-text);
+    background-color: var(--color-bg);
     min-height: 100vh;
     display: flex;
     flex-direction: column;
@@ -46,17 +86,17 @@ main {
 }
 
 footer {
-    background: #333;
-    color: #aaa;
+    background: var(--color-footer-bg);
+    color: var(--color-footer-text);
     text-align: center;
     padding: 1rem;
 }
 
 .upload-section {
-    background: white;
+    background: var(--color-surface);
     border-radius: 12px;
     padding: 2rem;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 10px var(--color-shadow);
 }
 
 .form-group {
@@ -67,16 +107,18 @@ footer {
     display: block;
     margin-bottom: 0.5rem;
     font-weight: 600;
-    color: #555;
+    color: var(--color-text-muted);
 }
 
 .form-group input[type="file"] {
     width: 100%;
     padding: 1rem;
-    border: 2px dashed #ccc;
+    border: 2px dashed var(--color-border-dashed);
     border-radius: 8px;
     cursor: pointer;
     transition: border-color 0.3s;
+    background: var(--color-surface);
+    color: var(--color-text);
 }
 
 .form-group input[type="file"]:hover {
@@ -87,35 +129,37 @@ footer {
 .form-group input[type="number"] {
     width: 100%;
     padding: 0.75rem;
-    border: 1px solid #ddd;
+    border: 1px solid var(--color-border);
     border-radius: 6px;
     font-size: 1rem;
+    background: var(--color-surface);
+    color: var(--color-text);
 }
 
 .form-group small {
     display: block;
     margin-top: 0.25rem;
-    color: #888;
+    color: var(--color-text-faint);
     font-size: 0.85rem;
 }
 
 .advanced-options {
     margin: 1.5rem 0;
     padding: 1rem;
-    background: #f9f9f9;
+    background: var(--color-surface-alt);
     border-radius: 8px;
 }
 
 .advanced-options summary {
     cursor: pointer;
     font-weight: 600;
-    color: #555;
+    color: var(--color-text-muted);
     padding: 0.5rem;
 }
 
 .advanced-options[open] summary {
     margin-bottom: 1rem;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid var(--color-border);
     padding-bottom: 1rem;
 }
 
@@ -160,7 +204,7 @@ footer {
 .spinner {
     width: 50px;
     height: 50px;
-    border: 4px solid #f3f3f3;
+    border: 4px solid var(--color-spinner-track);
     border-top: 4px solid #667eea;
     border-radius: 50%;
     margin: 0 auto 1rem;
@@ -182,15 +226,15 @@ footer {
 }
 
 .result-container {
-    background: white;
+    background: var(--color-surface);
     border-radius: 12px;
     padding: 2rem;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 10px var(--color-shadow);
 }
 
 .result-container h2 {
     margin-bottom: 1rem;
-    color: #333;
+    color: var(--color-text);
 }
 
 .stats {
@@ -199,27 +243,27 @@ footer {
     gap: 1rem;
     margin-bottom: 1.5rem;
     padding: 1rem;
-    background: #f9f9f9;
+    background: var(--color-surface-alt);
     border-radius: 8px;
 }
 
 .stat {
     padding: 0.5rem 1rem;
-    background: white;
+    background: var(--color-surface);
     border-radius: 6px;
     font-size: 0.9rem;
 }
 
 .preview h3 {
     margin-bottom: 1rem;
-    color: #555;
+    color: var(--color-text-muted);
 }
 
 .svg-container {
-    border: 1px solid #ddd;
+    border: 1px solid var(--color-border);
     border-radius: 8px;
     padding: 1rem;
-    background: white;
+    background: var(--color-surface);
     overflow: hidden;
     max-height: 500px;
     display: flex;
@@ -257,18 +301,18 @@ footer {
 }
 
 .error-message {
-    background: #f8d7da;
-    color: #721c24;
+    background: var(--color-error-bg);
+    color: var(--color-error-text);
     padding: 1rem;
     border-radius: 8px;
-    border: 1px solid #f5c6cb;
+    border: 1px solid var(--color-error-border);
     margin: 1rem 0;
 }
 
 .wasm-loading {
     text-align: center;
     padding: 2rem;
-    color: #666;
+    color: var(--color-wasm-loading);
 }
 
 @media (max-width: 600px) {
