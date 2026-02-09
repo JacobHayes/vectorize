@@ -4,217 +4,472 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vectorize - Image to SVG</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
     <style>
 :root {
-    --color-text: #333;
-    --color-text-muted: #555;
-    --color-text-faint: #888;
-    --color-bg: #f5f5f5;
-    --color-surface: #fff;
-    --color-surface-alt: #f9f9f9;
-    --color-border: #ddd;
-    --color-border-dashed: #ccc;
-    --color-footer-bg: #333;
-    --color-footer-text: #aaa;
-    --color-error-bg: #f8d7da;
-    --color-error-text: #721c24;
-    --color-error-border: #f5c6cb;
-    --color-spinner-track: #f3f3f3;
-    --color-shadow: rgba(0, 0, 0, 0.1);
-    --color-wasm-loading: #666;
+    --c-accent: #c4593a;
+    --c-accent-hover: #a84830;
+    --c-accent-glow: rgba(196, 89, 58, 0.25);
+    --c-text: #2c2c2c;
+    --c-text-secondary: #6b6b6b;
+    --c-text-tertiary: #9a9a9a;
+    --c-bg: #f4f1ec;
+    --c-surface: #ffffff;
+    --c-surface-raised: #faf8f5;
+    --c-border: #e2ded8;
+    --c-border-subtle: #ece9e3;
+    --c-drop-bg: #faf8f5;
+    --c-drop-border: #d4cfc7;
+    --c-drop-hover-border: var(--c-accent);
+    --c-drop-hover-bg: #fdf6f3;
+    --c-stat-bg: #f4f1ec;
+    --c-preview-bg: #f9f8f6;
+    --c-preview-checker: #edeae5;
+    --c-footer-bg: #2c2c2c;
+    --c-footer-text: #8a8a8a;
+    --c-error-bg: #fdf0ee;
+    --c-error-text: #9b3023;
+    --c-error-border: #f0c9c2;
+    --c-spinner: var(--c-accent);
+    --c-spinner-track: #e2ded8;
+    --c-success: #3a7d5c;
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 16px rgba(0,0,0,0.06);
+    --shadow-lg: 0 8px 30px rgba(0,0,0,0.08);
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 16px;
+    --font-body: 'DM Sans', system-ui, -apple-system, sans-serif;
+    --font-display: 'Instrument Serif', Georgia, serif;
 }
 
 @media (prefers-color-scheme: dark) {
     :root {
-        --color-text: #e0e0e0;
-        --color-text-muted: #b0b0b0;
-        --color-text-faint: #888;
-        --color-bg: #1a1a2e;
-        --color-surface: #252540;
-        --color-surface-alt: #2a2a45;
-        --color-border: #3a3a55;
-        --color-border-dashed: #4a4a65;
-        --color-footer-bg: #12121f;
-        --color-footer-text: #888;
-        --color-error-bg: #3d1c24;
-        --color-error-text: #f8a4b0;
-        --color-error-border: #5a2a35;
-        --color-spinner-track: #3a3a55;
-        --color-shadow: rgba(0, 0, 0, 0.3);
-        --color-wasm-loading: #aaa;
+        --c-accent: #e07a5a;
+        --c-accent-hover: #c4593a;
+        --c-accent-glow: rgba(224, 122, 90, 0.2);
+        --c-text: #e8e4de;
+        --c-text-secondary: #a09a90;
+        --c-text-tertiary: #706b63;
+        --c-bg: #1c1b19;
+        --c-surface: #262522;
+        --c-surface-raised: #2e2d2a;
+        --c-border: #3d3b37;
+        --c-border-subtle: #333230;
+        --c-drop-bg: #2a2926;
+        --c-drop-border: #4a4844;
+        --c-drop-hover-border: var(--c-accent);
+        --c-drop-hover-bg: #302824;
+        --c-stat-bg: #2a2926;
+        --c-preview-bg: #222120;
+        --c-preview-checker: #2a2926;
+        --c-footer-bg: #141312;
+        --c-footer-text: #6b6860;
+        --c-error-bg: #302020;
+        --c-error-text: #e8a090;
+        --c-error-border: #4a2a24;
+        --c-spinner-track: #3d3b37;
+        --c-success: #5aab80;
+        --shadow-sm: 0 1px 2px rgba(0,0,0,0.15);
+        --shadow-md: 0 4px 16px rgba(0,0,0,0.2);
+        --shadow-lg: 0 8px 30px rgba(0,0,0,0.25);
     }
 }
 
-* {
+*, *::before, *::after {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+    font-family: var(--font-body);
+    font-size: 15px;
     line-height: 1.6;
-    color: var(--color-text);
-    background-color: var(--color-bg);
+    color: var(--c-text);
+    background-color: var(--c-bg);
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
+/* ---- HEADER ---- */
+
 header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    padding: 2rem;
+    padding: 3rem 2rem 2.5rem;
     text-align: center;
+    position: relative;
+}
+
+header::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(90%, 600px);
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--c-border), transparent);
 }
 
 header h1 {
-    margin-bottom: 0.5rem;
-    font-size: 2.5rem;
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(2.4rem, 5vw, 3.4rem);
+    letter-spacing: -0.01em;
+    line-height: 1.1;
+    color: var(--c-text);
+}
+
+header h1 span {
+    color: var(--c-accent);
 }
 
 header p {
-    opacity: 0.9;
+    margin-top: 0.6rem;
+    font-size: 0.92rem;
+    color: var(--c-text-secondary);
+    font-weight: 400;
+    letter-spacing: 0.01em;
 }
+
+/* ---- MAIN ---- */
 
 main {
     flex: 1;
-    max-width: 900px;
+    max-width: 720px;
     margin: 0 auto;
-    padding: 2rem;
+    padding: 2rem 1.5rem 3rem;
     width: 100%;
 }
 
-footer {
-    background: var(--color-footer-bg);
-    color: var(--color-footer-text);
+/* ---- WASM LOADING ---- */
+
+.wasm-loading {
     text-align: center;
-    padding: 1rem;
+    padding: 4rem 2rem;
+    color: var(--c-text-secondary);
 }
+
+.wasm-loading p {
+    font-size: 0.88rem;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    font-weight: 500;
+}
+
+/* ---- SPINNER ---- */
+
+.spinner {
+    width: 28px;
+    height: 28px;
+    border: 2.5px solid var(--c-spinner-track);
+    border-top-color: var(--c-spinner);
+    border-radius: 50%;
+    margin: 0 auto 1rem;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ---- UPLOAD SECTION ---- */
 
 .upload-section {
-    background: var(--color-surface);
-    border-radius: 12px;
-    padding: 2rem;
-    box-shadow: 0 2px 10px var(--color-shadow);
+    animation: fadeUp 0.5s ease-out;
 }
 
-.form-group {
-    margin-bottom: 1.5rem;
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
-.form-group label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-weight: 600;
-    color: var(--color-text-muted);
-}
+/* ---- DROP ZONE ---- */
 
-.form-group input[type="file"] {
-    width: 100%;
-    padding: 1rem;
-    border: 2px dashed var(--color-border-dashed);
-    border-radius: 8px;
+.drop-zone {
+    position: relative;
+    border: 1.5px dashed var(--c-drop-border);
+    border-radius: var(--radius-lg);
+    background: var(--c-drop-bg);
+    padding: 2.5rem 2rem;
+    text-align: center;
     cursor: pointer;
-    transition: border-color 0.3s;
-    background: var(--color-surface);
-    color: var(--color-text);
+    transition: border-color 0.25s, background-color 0.25s, box-shadow 0.25s;
 }
 
-.form-group input[type="file"]:hover {
-    border-color: #667eea;
+.drop-zone:hover,
+.drop-zone.drag-over {
+    border-color: var(--c-drop-hover-border);
+    background: var(--c-drop-hover-bg);
+    box-shadow: 0 0 0 4px var(--c-accent-glow);
 }
 
-.form-group select,
-.form-group input[type="number"] {
-    width: 100%;
-    padding: 0.75rem;
-    border: 1px solid var(--color-border);
-    border-radius: 6px;
-    font-size: 1rem;
-    background: var(--color-surface);
-    color: var(--color-text);
+.drop-zone-icon {
+    width: 40px;
+    height: 40px;
+    margin: 0 auto 0.75rem;
+    opacity: 0.45;
+    transition: opacity 0.25s, transform 0.25s;
 }
 
-.form-group small {
+.drop-zone:hover .drop-zone-icon,
+.drop-zone.drag-over .drop-zone-icon {
+    opacity: 0.7;
+    transform: translateY(-2px);
+}
+
+.drop-zone-text {
+    font-size: 0.95rem;
+    color: var(--c-text-secondary);
+    line-height: 1.5;
+}
+
+.drop-zone-text strong {
+    color: var(--c-accent);
+    font-weight: 500;
+}
+
+.drop-zone-hint {
     display: block;
-    margin-top: 0.25rem;
-    color: var(--color-text-faint);
-    font-size: 0.85rem;
+    margin-top: 0.3rem;
+    font-size: 0.8rem;
+    color: var(--c-text-tertiary);
 }
+
+.drop-zone input[type="file"] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.file-selected {
+    margin-top: 0.75rem;
+    font-size: 0.82rem;
+    color: var(--c-accent);
+    font-weight: 500;
+    display: none;
+}
+
+.file-selected.visible {
+    display: block;
+}
+
+/* ---- CONTROLS ---- */
+
+.controls {
+    margin-top: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.field label {
+    font-size: 0.78rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--c-text-secondary);
+}
+
+.field select,
+.field input[type="number"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 100%;
+    padding: 0.6rem 0.8rem;
+    border: 1px solid var(--c-border);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    background: var(--c-surface);
+    color: var(--c-text);
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+}
+
+.field select {
+    background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%239a9a9a' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.8rem center;
+    padding-right: 2.2rem;
+}
+
+@media (prefers-color-scheme: dark) {
+    .field select {
+        background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%23706b63' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    }
+}
+
+.field select:focus,
+.field input[type="number"]:focus {
+    border-color: var(--c-accent);
+    box-shadow: 0 0 0 3px var(--c-accent-glow);
+}
+
+.field small {
+    font-size: 0.78rem;
+    color: var(--c-text-tertiary);
+    line-height: 1.4;
+}
+
+/* Preset pills */
+.preset-group {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.preset-pill {
+    flex: 1;
+    min-width: 0;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--c-border);
+    border-radius: var(--radius-sm);
+    background: var(--c-surface);
+    color: var(--c-text-secondary);
+    font-family: var(--font-body);
+    font-size: 0.82rem;
+    font-weight: 500;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.preset-pill:hover {
+    border-color: var(--c-accent);
+    color: var(--c-text);
+}
+
+.preset-pill.active {
+    background: var(--c-accent);
+    border-color: var(--c-accent);
+    color: #fff;
+}
+
+/* ---- ADVANCED OPTIONS ---- */
 
 .advanced-options {
-    margin: 1.5rem 0;
-    padding: 1rem;
-    background: var(--color-surface-alt);
-    border-radius: 8px;
+    margin-top: 0.5rem;
+    border: 1px solid var(--c-border-subtle);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    background: var(--c-surface);
 }
 
 .advanced-options summary {
     cursor: pointer;
-    font-weight: 600;
-    color: var(--color-text-muted);
-    padding: 0.5rem;
+    padding: 0.7rem 1rem;
+    font-size: 0.8rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--c-text-tertiary);
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: color 0.2s;
+    user-select: none;
 }
 
-.advanced-options[open] summary {
-    margin-bottom: 1rem;
-    border-bottom: 1px solid var(--color-border);
-    padding-bottom: 1rem;
+.advanced-options summary::-webkit-details-marker { display: none; }
+
+.advanced-options summary::before {
+    content: '';
+    display: inline-block;
+    width: 5px;
+    height: 5px;
+    border-right: 1.5px solid currentColor;
+    border-bottom: 1.5px solid currentColor;
+    transform: rotate(-45deg);
+    transition: transform 0.25s;
+    flex-shrink: 0;
 }
+
+.advanced-options[open] summary::before {
+    transform: rotate(45deg);
+}
+
+.advanced-options summary:hover {
+    color: var(--c-text-secondary);
+}
+
+.advanced-options .options-grid {
+    padding: 0.5rem 1rem 1rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem 1.25rem;
+}
+
+/* ---- CONVERT BUTTON ---- */
 
 .btn-primary {
     width: 100%;
-    padding: 1rem 2rem;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
+    margin-top: 1.5rem;
+    padding: 0.85rem 2rem;
+    background: var(--c-accent);
+    color: #fff;
     border: none;
-    border-radius: 8px;
-    font-size: 1.1rem;
+    border-radius: var(--radius-md);
+    font-family: var(--font-body);
+    font-size: 0.92rem;
     font-weight: 600;
+    letter-spacing: 0.02em;
     cursor: pointer;
-    transition: transform 0.2s, box-shadow 0.2s;
+    transition: background 0.2s, box-shadow 0.2s, transform 0.15s;
+    position: relative;
+    overflow: hidden;
 }
 
-.btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+.btn-primary:hover:not(:disabled) {
+    background: var(--c-accent-hover);
+    box-shadow: 0 4px 14px var(--c-accent-glow);
+    transform: translateY(-1px);
 }
 
-.btn-primary:active {
+.btn-primary:active:not(:disabled) {
     transform: translateY(0);
+    box-shadow: none;
 }
 
 .btn-primary:disabled {
-    opacity: 0.6;
+    opacity: 0.5;
     cursor: not-allowed;
-    transform: none;
 }
+
+/* ---- LOADING ---- */
 
 .loading {
     display: none;
     text-align: center;
-    padding: 2rem;
+    padding: 2rem 1rem;
 }
 
 .loading.active {
     display: block;
+    animation: fadeUp 0.3s ease-out;
 }
 
-.spinner {
-    width: 50px;
-    height: 50px;
-    border: 4px solid var(--color-spinner-track);
-    border-top: 4px solid #667eea;
-    border-radius: 50%;
-    margin: 0 auto 1rem;
-    animation: spin 1s linear infinite;
+.loading p {
+    font-size: 0.85rem;
+    color: var(--c-text-secondary);
+    letter-spacing: 0.01em;
 }
 
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
+/* ---- RESULT SECTION ---- */
 
 .result-section {
     margin-top: 2rem;
@@ -223,49 +478,93 @@ footer {
 
 .result-section.active {
     display: block;
+    animation: fadeUp 0.4s ease-out;
 }
 
 .result-container {
-    background: var(--color-surface);
-    border-radius: 12px;
-    padding: 2rem;
-    box-shadow: 0 2px 10px var(--color-shadow);
+    background: var(--c-surface);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+    border: 1px solid var(--c-border-subtle);
 }
 
-.result-container h2 {
-    margin-bottom: 1rem;
-    color: var(--color-text);
+.result-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.25rem 1.5rem 0;
 }
+
+.result-header h2 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: 1.5rem;
+    color: var(--c-text);
+}
+
+/* ---- STATS ---- */
 
 .stats {
     display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
-    padding: 1rem;
-    background: var(--color-surface-alt);
-    border-radius: 8px;
+    gap: 0;
+    padding: 1rem 1.5rem;
 }
 
 .stat {
-    padding: 0.5rem 1rem;
-    background: var(--color-surface);
-    border-radius: 6px;
-    font-size: 0.9rem;
+    flex: 1;
+    text-align: center;
+    position: relative;
 }
 
-.preview h3 {
-    margin-bottom: 1rem;
-    color: var(--color-text-muted);
+.stat + .stat::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 15%;
+    height: 70%;
+    width: 1px;
+    background: var(--c-border);
+}
+
+.stat-value {
+    display: block;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--c-text);
+    letter-spacing: -0.01em;
+}
+
+.stat-label {
+    display: block;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--c-text-tertiary);
+    margin-top: 0.15rem;
+    font-weight: 500;
+}
+
+/* ---- PREVIEW ---- */
+
+.preview {
+    padding: 0 1.5rem;
 }
 
 .svg-container {
-    border: 1px solid var(--color-border);
-    border-radius: 8px;
-    padding: 1rem;
-    background: var(--color-surface);
+    border: 1px solid var(--c-border-subtle);
+    border-radius: var(--radius-md);
+    padding: 1.5rem;
+    background-color: var(--c-preview-bg);
+    background-image:
+        linear-gradient(45deg, var(--c-preview-checker) 25%, transparent 25%),
+        linear-gradient(-45deg, var(--c-preview-checker) 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, var(--c-preview-checker) 75%),
+        linear-gradient(-45deg, transparent 75%, var(--c-preview-checker) 75%);
+    background-size: 16px 16px;
+    background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
     overflow: hidden;
-    max-height: 500px;
+    max-height: 480px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -273,73 +572,133 @@ footer {
 
 .svg-container svg {
     max-width: 100%;
-    max-height: 468px;
+    max-height: 440px;
     width: auto;
     height: auto;
     display: block;
 }
 
+/* ---- DOWNLOAD ---- */
+
 .download-section {
-    margin-top: 1.5rem;
-    text-align: center;
+    padding: 1.25rem 1.5rem;
 }
 
 .btn-download {
-    padding: 0.75rem 2rem;
-    background: #28a745;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-size: 1rem;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: var(--c-surface-raised);
+    color: var(--c-text);
+    border: 1px solid var(--c-border);
+    border-radius: var(--radius-md);
+    font-family: var(--font-body);
+    font-size: 0.88rem;
     font-weight: 600;
     cursor: pointer;
-    transition: background 0.2s;
+    transition: all 0.2s;
 }
 
 .btn-download:hover {
-    background: #218838;
+    background: var(--c-accent);
+    border-color: var(--c-accent);
+    color: #fff;
+    box-shadow: 0 4px 14px var(--c-accent-glow);
 }
+
+.btn-download svg {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+}
+
+/* ---- ERROR ---- */
 
 .error-message {
-    background: var(--color-error-bg);
-    color: var(--color-error-text);
-    padding: 1rem;
-    border-radius: 8px;
-    border: 1px solid var(--color-error-border);
+    background: var(--c-error-bg);
+    color: var(--c-error-text);
+    padding: 0.8rem 1rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--c-error-border);
     margin: 1rem 0;
+    font-size: 0.88rem;
 }
 
-.wasm-loading {
+/* ---- FOOTER ---- */
+
+footer {
     text-align: center;
-    padding: 2rem;
-    color: var(--color-wasm-loading);
+    padding: 1.5rem 1rem;
+    color: var(--c-text-tertiary);
+    font-size: 0.78rem;
+    letter-spacing: 0.02em;
 }
+
+footer a {
+    color: var(--c-text-secondary);
+    text-decoration: none;
+    border-bottom: 1px solid var(--c-border);
+    transition: color 0.2s, border-color 0.2s;
+}
+
+footer a:hover {
+    color: var(--c-accent);
+    border-color: var(--c-accent);
+}
+
+/* ---- RESPONSIVE ---- */
 
 @media (max-width: 600px) {
-    header h1 {
-        font-size: 1.8rem;
+    header {
+        padding: 2rem 1.5rem 1.5rem;
     }
 
     main {
-        padding: 1rem;
+        padding: 1.25rem 1rem 2rem;
     }
 
-    .upload-section,
-    .result-container {
-        padding: 1.5rem;
+    .drop-zone {
+        padding: 2rem 1.25rem;
+    }
+
+    .advanced-options .options-grid {
+        grid-template-columns: 1fr;
     }
 
     .stats {
         flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .stat + .stat::before {
+        display: none;
+    }
+
+    .result-header,
+    .stats,
+    .preview,
+    .download-section {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
+    .preset-group {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
     }
 }
+
     </style>
 </head>
 <body>
     <header>
-        <h1>Vectorize</h1>
-        <p>Convert PNG images to SVG (runs locally in your browser)</p>
+        <h1>Vector<span>ize</span></h1>
+        <p>Raster to vector, entirely in your browser</p>
     </header>
+
     <main>
         <div id="wasm-loading" class="wasm-loading">
             <div class="spinner"></div>
@@ -348,62 +707,82 @@ footer {
 
         <section id="upload-section" class="upload-section" style="display: none;">
             <form id="upload-form">
-                <div class="form-group">
-                    <label for="image">Select PNG Image</label>
+                <!-- Drop zone -->
+                <div class="drop-zone" id="drop-zone">
+                    <svg class="drop-zone-icon" viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="6" y="6" width="28" height="28" rx="4"/>
+                        <circle cx="16" cy="17" r="3"/>
+                        <path d="M34 26l-7.5-9-6 7-4.5-4L6 30"/>
+                    </svg>
+                    <div class="drop-zone-text">
+                        Drop an image here or <strong>browse</strong>
+                        <span class="drop-zone-hint">PNG, JPEG, GIF, or WebP</span>
+                    </div>
+                    <div id="file-selected" class="file-selected"></div>
                     <input type="file" id="image" name="image" accept="image/*" required>
                 </div>
 
-                <div class="form-group">
-                    <label for="preset">Preset</label>
-                    <select id="preset" name="preset">
-                        <option value="default">Default</option>
-                        <option value="bw">Black & White</option>
-                        <option value="poster">Poster</option>
-                        <option value="photo">Photo</option>
-                    </select>
-                </div>
-
-                <details class="advanced-options">
-                    <summary>Advanced Options</summary>
-
-                    <div class="form-group">
-                        <label for="color_mode">Color Mode</label>
-                        <select id="color_mode" name="color_mode">
-                            <option value="color">Color</option>
-                            <option value="binary">Binary (Black & White)</option>
+                <!-- Controls -->
+                <div class="controls">
+                    <div class="field">
+                        <label>Preset</label>
+                        <div class="preset-group" id="preset-group">
+                            <button type="button" class="preset-pill active" data-value="default">Default</button>
+                            <button type="button" class="preset-pill" data-value="bw">B&W</button>
+                            <button type="button" class="preset-pill" data-value="poster">Poster</button>
+                            <button type="button" class="preset-pill" data-value="photo">Photo</button>
+                        </div>
+                        <select id="preset" name="preset" style="display:none;">
+                            <option value="default" selected>Default</option>
+                            <option value="bw">Black & White</option>
+                            <option value="poster">Poster</option>
+                            <option value="photo">Photo</option>
                         </select>
                     </div>
 
-                    <div class="form-group">
-                        <label for="filter_speckle">Filter Speckle (1-100)</label>
-                        <input type="number" id="filter_speckle" name="filter_speckle" value="4" min="1" max="100">
-                        <small>Remove speckles smaller than this size</small>
-                    </div>
+                    <details class="advanced-options">
+                        <summary>Advanced options</summary>
+                        <div class="options-grid">
+                            <div class="field">
+                                <label for="color_mode">Color mode</label>
+                                <select id="color_mode" name="color_mode">
+                                    <option value="color">Color</option>
+                                    <option value="binary">Binary</option>
+                                </select>
+                            </div>
 
-                    <div class="form-group">
-                        <label for="color_precision">Color Precision (1-10)</label>
-                        <input type="number" id="color_precision" name="color_precision" value="6" min="1" max="10">
-                        <small>Number of significant bits for color quantization</small>
-                    </div>
+                            <div class="field">
+                                <label for="filter_speckle">Speckle filter</label>
+                                <input type="number" id="filter_speckle" name="filter_speckle" value="4" min="1" max="100">
+                                <small>Remove speckles &lt; this size</small>
+                            </div>
 
-                    <div class="form-group">
-                        <label for="corner_threshold">Corner Threshold (0-180)</label>
-                        <input type="number" id="corner_threshold" name="corner_threshold" value="60" min="0" max="180">
-                        <small>Angle threshold for corner detection</small>
-                    </div>
+                            <div class="field">
+                                <label for="color_precision">Color precision</label>
+                                <input type="number" id="color_precision" name="color_precision" value="6" min="1" max="10">
+                                <small>Bits for quantization (1-10)</small>
+                            </div>
 
-                    <div class="form-group">
-                        <label for="segment_length">Segment Length (0.5-10)</label>
-                        <input type="number" id="segment_length" name="segment_length" value="4.0" min="0.5" max="10" step="0.5">
-                        <small>Minimum segment length</small>
-                    </div>
+                            <div class="field">
+                                <label for="corner_threshold">Corner threshold</label>
+                                <input type="number" id="corner_threshold" name="corner_threshold" value="60" min="0" max="180">
+                                <small>Angle for corners (0-180)</small>
+                            </div>
 
-                    <div class="form-group">
-                        <label for="splice_threshold">Splice Threshold (0-180)</label>
-                        <input type="number" id="splice_threshold" name="splice_threshold" value="45" min="0" max="180">
-                        <small>Angle threshold for path splicing</small>
-                    </div>
-                </details>
+                            <div class="field">
+                                <label for="segment_length">Segment length</label>
+                                <input type="number" id="segment_length" name="segment_length" value="4.0" min="0.5" max="10" step="0.5">
+                                <small>Min segment length</small>
+                            </div>
+
+                            <div class="field">
+                                <label for="splice_threshold">Splice threshold</label>
+                                <input type="number" id="splice_threshold" name="splice_threshold" value="45" min="0" max="180">
+                                <small>Angle for splicing (0-180)</small>
+                            </div>
+                        </div>
+                    </details>
+                </div>
 
                 <button type="submit" id="convert-btn" class="btn-primary">Convert to SVG</button>
             </form>
@@ -416,33 +795,43 @@ footer {
 
         <section id="result" class="result-section">
             <div class="result-container">
-                <h2>Conversion Result</h2>
+                <div class="result-header">
+                    <h2>Result</h2>
+                </div>
 
                 <div class="stats">
-                    <span class="stat">
-                        <strong>Dimensions:</strong> <span id="dimensions"></span>
-                    </span>
-                    <span class="stat">
-                        <strong>Processing time:</strong> <span id="processing-time"></span>
-                    </span>
-                    <span class="stat">
-                        <strong>SVG size:</strong> <span id="svg-size"></span>
-                    </span>
+                    <div class="stat">
+                        <span class="stat-value" id="dimensions"></span>
+                        <span class="stat-label">Dimensions</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-value" id="processing-time"></span>
+                        <span class="stat-label">Time</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-value" id="svg-size"></span>
+                        <span class="stat-label">SVG size</span>
+                    </div>
                 </div>
 
                 <div class="preview">
-                    <h3>Preview</h3>
                     <div id="svg-container" class="svg-container"></div>
                 </div>
 
                 <div class="download-section">
-                    <button id="download-btn" class="btn-download">Download SVG</button>
+                    <button id="download-btn" class="btn-download">
+                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M8 2v9m0 0l-3-3m3 3l3-3M3 13h10"/>
+                        </svg>
+                        Download SVG
+                    </button>
                 </div>
             </div>
         </section>
     </main>
+
     <footer>
-        <p>Powered by vtracer (running locally via WebAssembly)</p>
+        <p>Powered by <a href="https://github.com/nicbou/vtracer" target="_blank" rel="noopener">vtracer</a> &middot; runs locally via WebAssembly</p>
     </footer>
 
     <script type="module">
@@ -451,6 +840,50 @@ footer {
         let currentSvg = null;
         let currentFilename = 'converted.svg';
 
+        // Preset pill logic
+        const presetGroup = document.getElementById('preset-group');
+        const presetSelect = document.getElementById('preset');
+        presetGroup.addEventListener('click', (e) => {
+            const pill = e.target.closest('.preset-pill');
+            if (!pill) return;
+            presetGroup.querySelectorAll('.preset-pill').forEach(p => p.classList.remove('active'));
+            pill.classList.add('active');
+            presetSelect.value = pill.dataset.value;
+        });
+
+        // Drop zone visual feedback
+        const dropZone = document.getElementById('drop-zone');
+        const fileInput = document.getElementById('image');
+        const fileSelected = document.getElementById('file-selected');
+
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('drag-over');
+        });
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('drag-over');
+        });
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('drag-over');
+            const files = e.dataTransfer.files;
+            if (files.length > 0 && files[0].type.startsWith('image/')) {
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(files[0]);
+                fileInput.files = dataTransfer.files;
+                fileInput.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+        });
+
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files.length > 0) {
+                fileSelected.textContent = fileInput.files[0].name;
+                fileSelected.classList.add('visible');
+            } else {
+                fileSelected.classList.remove('visible');
+            }
+        });
+
         async function run() {
             await init();
 
@@ -458,7 +891,6 @@ footer {
             document.getElementById('upload-section').style.display = 'block';
 
             const form = document.getElementById('upload-form');
-            const fileInput = document.getElementById('image');
             const loading = document.getElementById('loading');
             const result = document.getElementById('result');
             const convertBtn = document.getElementById('convert-btn');
@@ -504,7 +936,6 @@ footer {
 
                     const svgContainer = document.getElementById('svg-container');
                     svgContainer.innerHTML = currentSvg;
-                    // Add viewBox and remove explicit dimensions so CSS can scale the SVG
                     const svgEl = svgContainer.querySelector('svg');
                     if (svgEl) {
                         const w = svgEl.getAttribute('width');
@@ -539,7 +970,7 @@ footer {
                 URL.revokeObjectURL(url);
             });
 
-            // Drag and drop support
+            // Global drag and drop fallback
             document.addEventListener('dragover', (e) => {
                 e.preventDefault();
                 e.dataTransfer.dropEffect = 'copy';
