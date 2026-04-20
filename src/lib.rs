@@ -18,6 +18,8 @@ pub struct ConversionOptions {
     pub corner_threshold: u32,
     pub segment_length: f64,
     pub splice_threshold: u32,
+    pub output_width: Option<u32>,
+    pub output_height: Option<u32>,
 }
 
 impl Default for ConversionOptions {
@@ -30,6 +32,8 @@ impl Default for ConversionOptions {
             corner_threshold: 60,
             segment_length: 4.0,
             splice_threshold: 45,
+            output_width: None,
+            output_height: None,
         }
     }
 }
@@ -130,9 +134,35 @@ pub fn convert_png_to_svg(
     let svg_file = convert(color_image, config)
         .map_err(|e| JsValue::from_str(&format!("Vectorization failed: {}", e)))?;
 
-    Ok(ConversionResult {
-        svg: svg_file.to_string(),
-        width,
-        height,
-    })
+    let raw = svg_file.to_string();
+
+    let out_w = options.output_width.filter(|&v| v > 0).unwrap_or(width);
+    let out_h = options.output_height.filter(|&v| v > 0).unwrap_or(height);
+
+    let svg = raw
+        .replacen(
+            &format!("width=\"{}\"", width),
+            &format!("width=\"{}\"", out_w),
+            1,
+        )
+        .replacen(
+            &format!("height=\"{}\"", height),
+            &format!("height=\"{}\"", out_h),
+            1,
+        );
+
+    // Inject viewBox using original dims so coordinate space matches path data
+    let viewbox = format!(" viewBox=\"0 0 {} {}\"", width, height);
+    let svg = match svg.find("<svg") {
+        Some(idx) => {
+            let mut s = String::with_capacity(svg.len() + viewbox.len());
+            s.push_str(&svg[..idx + 4]);
+            s.push_str(&viewbox);
+            s.push_str(&svg[idx + 4..]);
+            s
+        }
+        None => svg,
+    };
+
+    Ok(ConversionResult { svg, width, height })
 }

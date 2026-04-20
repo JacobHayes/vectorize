@@ -780,6 +780,18 @@ footer a:hover {
                                 <input type="number" id="splice_threshold" name="splice_threshold" value="45" min="0" max="180">
                                 <small>Angle for splicing (0-180)</small>
                             </div>
+
+                            <div class="field">
+                                <label for="output_width">Output width</label>
+                                <input type="number" id="output_width" name="output_width" min="1" step="1" placeholder="original">
+                                <small>SVG width attr (px)</small>
+                            </div>
+
+                            <div class="field">
+                                <label for="output_height">Output height</label>
+                                <input type="number" id="output_height" name="output_height" min="1" step="1" placeholder="original">
+                                <small>SVG height attr (px)</small>
+                            </div>
                         </div>
                     </details>
                 </div>
@@ -911,6 +923,13 @@ footer a:hover {
                     const arrayBuffer = await file.arrayBuffer();
                     const bytes = new Uint8Array(arrayBuffer);
 
+                    const parseOptInt = (id) => {
+                        const v = document.getElementById(id).value.trim();
+                        if (v === '') return undefined;
+                        const n = parseInt(v, 10);
+                        return Number.isFinite(n) && n > 0 ? n : undefined;
+                    };
+
                     const options = {
                         preset: document.getElementById('preset').value,
                         color_mode: document.getElementById('color_mode').value,
@@ -919,6 +938,8 @@ footer a:hover {
                         corner_threshold: parseInt(document.getElementById('corner_threshold').value),
                         segment_length: parseFloat(document.getElementById('segment_length').value),
                         splice_threshold: parseInt(document.getElementById('splice_threshold').value),
+                        output_width: parseOptInt('output_width'),
+                        output_height: parseOptInt('output_height'),
                     };
 
                     const startTime = performance.now();
