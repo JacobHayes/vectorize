@@ -166,3 +166,104 @@ pub fn convert_png_to_svg(
 
     Ok(ConversionResult { svg, width, height })
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn make_test_image(w: usize, h: usize) -> ColorImage {
+        ColorImage {
+            pixels: vec![255; w * h * 4],
+            width: w,
+            height: h,
+        }
+    }
+
+    fn convert_with_options(w: usize, h: usize, out_w: Option<u32>, out_h: Option<u32>) -> String {
+        let color_image = make_test_image(w, h);
+        let config = Config::default();
+        let svg_file = convert(color_image, config).unwrap();
+        let raw = svg_file.to_string();
+
+        let width = w as u32;
+        let height = h as u32;
+        let out_w = out_w.filter(|&v| v > 0).unwrap_or(width);
+        let out_h = out_h.filter(|&v| v > 0).unwrap_or(height);
+
+        let svg = raw
+            .replacen(
+                &format!("width=\"{}\"", width),
+                &format!("width=\"{}\"", out_w),
+                1,
+            )
+            .replacen(
+                &format!("height=\"{}\"", height),
+                &format!("height=\"{}\"", out_h),
+                1,
+            );
+
+        let viewbox = format!(" viewBox=\"0 0 {} {}\"", width, height);
+        match svg.find("<svg") {
+            Some(idx) => {
+                let mut s = String::with_capacity(svg.len() + viewbox.len());
+                s.push_str(&svg[..idx + 4]);
+                s.push_str(&viewbox);
+                s.push_str(&svg[idx + 4..]);
+                s
+            }
+            None => svg,
+        }
+    }
+
+    #[test]
+    fn vtracer_output_contains_expected_attributes() {
+        let img = make_test_image(10, 8);
+        let svg_file = convert(img, Config::default()).unwrap();
+        let raw = svg_file.to_string();
+        assert!(raw.contains("<svg"), "SVG must contain <svg tag");
+        assert!(raw.contains("width=\"10\""), "SVG must contain width=\"10\", got: {}", &raw[..200.min(raw.len())]);
+        assert!(raw.contains("height=\"8\""), "SVG must contain height=\"8\", got: {}", &raw[..200.min(raw.len())]);
+        assert!(!raw.contains("viewBox"), "vtracer should not emit viewBox");
+    }
+
+    #[test]
+    fn default_dimensions_preserved() {
+        let svg = convert_with_options(10, 8, None, None);
+        assert!(svg.contains("width=\"10\""));
+        assert!(svg.contains("height=\"8\""));
+        assert!(svg.contains("viewBox=\"0 0 10 8\""));
+    }
+
+    #[test]
+    fn override_both_dimensions() {
+        let svg = convert_with_options(10, 8, Some(800), Some(600));
+        assert!(svg.contains("width=\"800\""), "width should be overridden to 800");
+        assert!(svg.contains("height=\"600\""), "height should be overridden to 600");
+        assert!(svg.contains("viewBox=\"0 0 10 8\""), "viewBox must use original dims");
+        assert!(!svg.contains("width=\"10\""), "original width should be gone");
+        assert!(!svg.contains("height=\"8\""), "original height should be gone");
+    }
+
+    #[test]
+    fn override_only_width() {
+        let svg = convert_with_options(10, 8, Some(400), None);
+        assert!(svg.contains("width=\"400\""));
+        assert!(svg.contains("height=\"8\""), "unset height stays at original");
+        assert!(svg.contains("viewBox=\"0 0 10 8\""));
+    }
+
+    #[test]
+    fn override_only_height() {
+        let svg = convert_with_options(10, 8, None, Some(300));
+        assert!(svg.contains("width=\"10\""), "unset width stays at original");
+        assert!(svg.contains("height=\"300\""));
+        assert!(svg.contains("viewBox=\"0 0 10 8\""));
+    }
+
+    #[test]
+    fn zero_override_falls_back_to_original() {
+        let svg = convert_with_options(10, 8, Some(0), Some(0));
+        assert!(svg.contains("width=\"10\""));
+        assert!(svg.contains("height=\"8\""));
+    }
+}
