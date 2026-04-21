@@ -75,6 +75,8 @@ pub struct ConversionResult {
     svg: String,
     width: u32,
     height: u32,
+    output_width: u32,
+    output_height: u32,
 }
 
 #[wasm_bindgen]
@@ -92,6 +94,16 @@ impl ConversionResult {
     #[wasm_bindgen(getter)]
     pub fn height(&self) -> u32 {
         self.height
+    }
+
+    #[wasm_bindgen(getter)]
+    pub fn output_width(&self) -> u32 {
+        self.output_width
+    }
+
+    #[wasm_bindgen(getter)]
+    pub fn output_height(&self) -> u32 {
+        self.output_height
     }
 }
 
@@ -170,7 +182,7 @@ pub fn convert_png_to_svg(
         None => svg,
     };
 
-    Ok(ConversionResult { svg, width, height })
+    Ok(ConversionResult { svg, width, height, output_width: out_w, output_height: out_h })
 }
 
 #[cfg(test)]

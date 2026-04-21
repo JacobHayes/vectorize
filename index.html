@@ -784,13 +784,13 @@ footer a:hover {
                             <div class="field">
                                 <label for="output_width">Output width</label>
                                 <input type="number" id="output_width" name="output_width" min="1" step="1" placeholder="original">
-                                <small>SVG width attr (px)</small>
+                                <small>Set one to scale proportionally</small>
                             </div>
 
                             <div class="field">
                                 <label for="output_height">Output height</label>
                                 <input type="number" id="output_height" name="output_height" min="1" step="1" placeholder="original">
-                                <small>SVG height attr (px)</small>
+                                <small>Set both to stretch</small>
                             </div>
                         </div>
                     </details>
@@ -948,8 +948,10 @@ footer a:hover {
 
                     currentSvg = conversionResult.svg;
 
+                    const origDims = `${conversionResult.width} × ${conversionResult.height}`;
+                    const outDims = `${conversionResult.output_width} × ${conversionResult.output_height}`;
                     document.getElementById('dimensions').textContent =
-                        `${conversionResult.width} × ${conversionResult.height}`;
+                        origDims === outDims ? origDims : `${outDims} (from ${origDims})`;
                     document.getElementById('processing-time').textContent =
                         `${Math.round(endTime - startTime)}ms`;
                     document.getElementById('svg-size').textContent =
