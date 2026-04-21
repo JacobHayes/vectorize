@@ -136,8 +136,14 @@ pub fn convert_png_to_svg(
 
     let raw = svg_file.to_string();
 
-    let out_w = options.output_width.filter(|&v| v > 0).unwrap_or(width);
-    let out_h = options.output_height.filter(|&v| v > 0).unwrap_or(height);
+    let opt_w = options.output_width.filter(|&v| v > 0);
+    let opt_h = options.output_height.filter(|&v| v > 0);
+    let (out_w, out_h) = match (opt_w, opt_h) {
+        (Some(w), Some(h)) => (w, h),
+        (Some(w), None) => (w, (w as f64 * height as f64 / width as f64).round() as u32),
+        (None, Some(h)) => ((h as f64 * width as f64 / height as f64).round() as u32, h),
+        (None, None) => (width, height),
+    };
 
     let svg = raw
         .replacen(
@@ -187,8 +193,14 @@ mod tests {
 
         let width = w as u32;
         let height = h as u32;
-        let out_w = out_w.filter(|&v| v > 0).unwrap_or(width);
-        let out_h = out_h.filter(|&v| v > 0).unwrap_or(height);
+        let opt_w = out_w.filter(|&v| v > 0);
+        let opt_h = out_h.filter(|&v| v > 0);
+        let (out_w, out_h) = match (opt_w, opt_h) {
+            (Some(w), Some(h)) => (w, h),
+            (Some(w), None) => (w, (w as f64 * height as f64 / width as f64).round() as u32),
+            (None, Some(h)) => ((h as f64 * width as f64 / height as f64).round() as u32, h),
+            (None, None) => (width, height),
+        };
 
         let svg = raw
             .replacen(
@@ -245,17 +257,19 @@ mod tests {
     }
 
     #[test]
-    fn override_only_width() {
+    fn override_only_width_scales_height() {
+        // 10x8 image, width=400 -> height = 400 * 8/10 = 320
         let svg = convert_with_options(10, 8, Some(400), None);
         assert!(svg.contains("width=\"400\""));
-        assert!(svg.contains("height=\"8\""), "unset height stays at original");
+        assert!(svg.contains("height=\"320\""), "height should scale proportionally");
         assert!(svg.contains("viewBox=\"0 0 10 8\""));
     }
 
     #[test]
-    fn override_only_height() {
+    fn override_only_height_scales_width() {
+        // 10x8 image, height=300 -> width = 300 * 10/8 = 375
         let svg = convert_with_options(10, 8, None, Some(300));
-        assert!(svg.contains("width=\"10\""), "unset width stays at original");
+        assert!(svg.contains("width=\"375\""), "width should scale proportionally");
         assert!(svg.contains("height=\"300\""));
         assert!(svg.contains("viewBox=\"0 0 10 8\""));
     }
